@@ -64,9 +64,7 @@ jobs:
               echo "Docker not found, installing..."
               sudo apt update
               sudo apt install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo docker ps
+              sudo service docker start
             else
               echo "Docker is already installed."
             fi
