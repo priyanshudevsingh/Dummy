@@ -48,8 +48,8 @@ jobs:
 
       - name: Deploy Image on EC2
         run: |
-          echo "${{ secrets.EC2_KEY }}" | base64 --decode > ec2-key.pem
-          chmod 600 ec2-key.pem
+          echo "${{ secrets.ENCODED_PEM_KEY }}" | base64 --decode > ec2-key.pem
+          chmod 400 ec2-key.pem
 
           ssh -i ec2-key.pem ubuntu@$AWS_EC2_PUBLIC_IP << 'EOF'
             docker stop oj-server || true
