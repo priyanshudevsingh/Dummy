@@ -48,10 +48,6 @@ jobs:
 
       - name: Deploy Image on EC2
         run: |
-          # # Decode the key and save it to a file
-          # echo "${{ secrets.EC2_KEY }}" | base64 --decode > ec2-key.pem
-          # chmod 600 ec2-key.pem
-
           ssh -i ${{ secrets.EC2_KEY }} ubuntu@$AWS_EC2_PUBLIC_IP << 'EOF'
             docker stop oj-server || true
             docker rm oj-server || true
