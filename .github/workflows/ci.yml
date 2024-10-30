@@ -64,6 +64,11 @@ jobs:
               echo "Docker not found, installing..."
               sudo apt update
               sudo apt install -y docker.io
+
+              # Add user to the Docker group to allow non-root access
+              sudo usermod -aG docker $USER
+              newgrp docker
+
               sudo systemctl start docker
               sudo systemctl enable docker
             else
