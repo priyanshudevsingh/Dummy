@@ -18,7 +18,6 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_EC2_PUBLIC_IP: ${{ secrets.AWS_EC2_PUBLIC_IP }}
       REPO_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-      IMAGE_URI: $REPO_URI/oj-server:${{ github.sha }}
 
     steps:
       - name: Checkout code
@@ -41,11 +40,11 @@ jobs:
           fi
 
       - name: Build Docker Image
-        run: docker build -t $IMAGE_URI .
+        run: docker build -t $REPO_URI/oj-server:${{ github.sha }} .
         working-directory: ./server
 
       - name: Push Image to ECR Repository
-        run: docker push $IMAGE_URI
+        run: docker push $REPO_URI/oj-server:${{ github.sha }}
 
       - name: Deploy Image on EC2
         run: |
@@ -71,15 +70,11 @@ jobs:
               echo "Docker is already installed."
             fi
 
-            # Check Docker daemon status
-            if ! sudo systemctl is-active --quiet docker; then
-              echo "Docker is not running, starting now..."
-              sudo systemctl start docker
-            fi
-
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
             sudo docker image prune -af
+            
+            IMAGE_URI="$REPO_URI/oj-server:${{ github.sha }}"
 
             sudo docker pull $IMAGE_URI
             sudo docker run -d --name oj-server -p 5000:5000 $IMAGE_URI
