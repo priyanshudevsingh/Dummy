@@ -48,6 +48,8 @@ jobs:
 
       - name: Deploy Image on EC2
         run: |
+          IMAGE_URI="$REPO_URI/oj-server:${{ github.sha }}"
+          
           # Decode the key and save it to a file
           echo "${{ secrets.ENCODED_PEM_KEY }}" | base64 --decode > ec2-key.pem
           chmod 400 ec2-key.pem
@@ -73,8 +75,6 @@ jobs:
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
             sudo docker image prune -af
-            
-            IMAGE_URI="$REPO_URI/oj-server:${{ github.sha }}"
 
             sudo docker pull $IMAGE_URI
             sudo docker run -d --name oj-server -p 5000:5000 $IMAGE_URI
