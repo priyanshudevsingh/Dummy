@@ -72,6 +72,8 @@ jobs:
               echo "Docker is already installed."
             fi
 
+            echo "IMAGE_URI is: $IMAGE_URI"
+
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
             sudo docker image prune -af
