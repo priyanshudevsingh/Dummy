@@ -102,5 +102,3 @@ jobs:
             sudo docker pull ${{env.REPO_URI}}/oj-server:${{ github.sha }}
             sudo docker run -d --name oj-server -p 5000:5000 ${{env.REPO_URI}}/oj-server:${{ github.sha }}
           EOF
-
-          rm ec2-key.pem
