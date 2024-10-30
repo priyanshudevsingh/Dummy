@@ -88,7 +88,7 @@ jobs:
             fi
 
             # Log in to ECR on EC2
-            aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin ${{ env.REPO_URI }}
+            aws ecr get-login-password --region ${{env.AWS_REGION}} | sudo docker login --username AWS --password-stdin ${{ env.REPO_URI }}
 
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
