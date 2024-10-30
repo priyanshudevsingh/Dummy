@@ -72,7 +72,7 @@ jobs:
               echo "Docker is already installed."
             fi
 
-            echo "IMAGE_URI is: $IMAGE_URI"
+            echo "IMAGE_URI is: $REPO_URI/oj-server:${{ github.sha }}"
 
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
