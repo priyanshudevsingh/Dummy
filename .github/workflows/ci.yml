@@ -51,10 +51,12 @@ jobs:
           echo "${{ secrets.ENCODED_PEM_KEY }}" | base64 --decode > ec2-key.pem
           chmod 400 ec2-key.pem
 
+          ssh-keyscan -H $AWS_EC2_PUBLIC_IP >> ~/.ssh/known_hosts
+
           ssh -i ec2-key.pem ubuntu@$AWS_EC2_PUBLIC_IP << 'EOF'
             docker stop oj-server || true
             docker rm oj-server || true
-            docker image prune -af  # Use -af to remove all unused images
+            docker image prune -af
             docker pull $REPO_URI/oj-server:${{ github.sha }}
             docker run -d --name oj-server -p 5000:5000 $REPO_URI/oj-server:${{ github.sha }}
           EOF
