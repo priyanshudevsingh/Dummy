@@ -69,12 +69,12 @@ jobs:
               echo "Docker is already installed."
             fi
 
-            docker stop oj-server || true
-            docker rm oj-server || true
-            docker image prune -af
+            sudo docker stop oj-server || true
+            sudo docker rm oj-server || true
+            sudo docker image prune -af
 
-            docker pull $REPO_URI/oj-server:${{ github.sha }}
-            docker run -d --name oj-server -p 5000:5000 $REPO_URI/oj-server:${{ github.sha }}
+            sudo docker pull $REPO_URI/oj-server:${{ github.sha }}
+            sudo docker run -d --name oj-server -p 5000:5000 $REPO_URI/oj-server:${{ github.sha }}
           EOF
 
           rm ec2-key.pem
