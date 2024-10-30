@@ -70,6 +70,12 @@ jobs:
               echo "Docker is already installed."
             fi
             
+            # Install unzip if not present
+            if ! command -v unzip &> /dev/null; then
+              echo "unzip not found, installing..."
+              sudo apt install -y unzip
+            fi
+
             # Install AWS CLI if not present
             if ! command -v aws &> /dev/null; then
               echo "AWS CLI not found, installing..."
