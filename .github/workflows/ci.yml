@@ -48,8 +48,8 @@ jobs:
 
       - name: Deploy Image on EC2
         run: |
-          IMAGE_URI="$REPO_URI/oj-server:${{ github.sha }}"
-          
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/oj-server:${{ github.sha }}"
+
           # Decode the key and save it to a file
           echo "${{ secrets.ENCODED_PEM_KEY }}" | base64 --decode > ec2-key.pem
           chmod 400 ec2-key.pem
