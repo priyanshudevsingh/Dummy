@@ -58,6 +58,16 @@ jobs:
           # Add EC2 public IP to known_hosts
           ssh-keyscan -H $AWS_EC2_PUBLIC_IP >> ~/.ssh/known_hosts
 
+          # Debugging steps
+          echo "Current Directory:"
+          pwd
+          echo "Files:"
+          ls -la
+          echo "Known Hosts:"
+          cat ~/.ssh/known_hosts
+          echo "EC2 Key Permissions:"
+          ls -l ec2-key.pem
+
           ssh -i ec2-key.pem ubuntu@$AWS_EC2_PUBLIC_IP << 'EOF'
             docker stop oj-server || true
             docker rm oj-server || true
