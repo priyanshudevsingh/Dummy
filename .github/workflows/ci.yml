@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'server/**'
+      - "server/**"
 
 jobs:
   build:
@@ -21,18 +21,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-      
-      - name: Go to server folder
-        run: cd server
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./server
 
       - name: Build Docker Image
         run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/backend-service:${{github.sha}} .
+        working-directory: ./server
 
-      - name: Login into Docker Hub
+      - name: Login to Docker Hub
         run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_PASSWORD}}
 
-      - name: Push image into Docker Hub
+      - name: Push image to Docker Hub
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/backend-service:${{github.sha}}
