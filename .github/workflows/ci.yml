@@ -26,11 +26,9 @@ jobs:
           fetch-depth: 1
 
       - name: Log in to ECR
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
+        run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
 
       - name: Create ECR Repository
-        id: create_ecr
         run: |
           if ! aws ecr describe-repositories --repository-names oj-server --region $AWS_REGION; then
             aws ecr create-repository --repository-name oj-server --region $AWS_REGION
