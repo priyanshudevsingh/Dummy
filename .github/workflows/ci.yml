@@ -29,13 +29,22 @@ jobs:
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
 
+      - name: Create ECR Repository
+        id: create_ecr
+        run: |
+          if ! aws ecr describe-repositories --repository-names oj-server --region $AWS_REGION; then
+            aws ecr create-repository --repository-name oj-server --region $AWS_REGION
+            echo "Repository 'oj-server' created."
+          else
+            echo "Repository 'oj-server' already exists. Skipping creation."
+          fi
+
       - name: Build Docker Image
         run: docker build -t $REPO_URI/oj-server:${{ github.sha }} .
         working-directory: ./server
 
-      - name: Push Image to ECR
-        run: |
-          docker push $REPO_URI/oj-server:${{ github.sha }}
+      - name: Push Image to ECR Repository
+        run: docker push $REPO_URI/oj-server:${{ github.sha }}
 
       - name: Deploy Image on EC2
         run: |
