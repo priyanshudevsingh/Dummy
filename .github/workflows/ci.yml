@@ -18,6 +18,7 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_EC2_PUBLIC_IP: ${{ secrets.AWS_EC2_PUBLIC_IP }}
       REPO_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+      IMAGE_URI: $REPO_URI/oj-server:${{ github.sha }}
 
     steps:
       - name: Checkout code
@@ -40,11 +41,11 @@ jobs:
           fi
 
       - name: Build Docker Image
-        run: docker build -t $REPO_URI/oj-server:${{ github.sha }} .
+        run: docker build -t $IMAGE_URI .
         working-directory: ./server
 
       - name: Push Image to ECR Repository
-        run: docker push $REPO_URI/oj-server:${{ github.sha }}
+        run: docker push $IMAGE_URI
 
       - name: Deploy Image on EC2
         run: |
@@ -79,10 +80,9 @@ jobs:
             sudo docker stop oj-server || true
             sudo docker rm oj-server || true
             sudo docker image prune -af
-            sudo docker ps
 
-            sudo docker pull $REPO_URI/oj-server:${{ github.sha }}
-            sudo docker run -d --name oj-server -p 5000:5000 $REPO_URI/oj-server:${{ github.sha }}
+            sudo docker pull $IMAGE_URI
+            sudo docker run -d --name oj-server -p 5000:5000 $IMAGE_URI
           EOF
 
           rm ec2-key.pem
