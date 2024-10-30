@@ -11,27 +11,45 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_EC2_PUBLIC_IP: ${{ secrets.AWS_EC2_PUBLIC_IP }}
+      REPO_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./server
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
 
       - name: Build Docker Image
-        run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/backend-service:${{github.sha}} .
+        run: docker build -t $REPO_URI/oj-server:${{ github.sha }} .
         working-directory: ./server
 
-      - name: Login to Docker Hub
-        run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_PASSWORD}}
+      - name: Push Image to ECR
+        run: |
+          docker push $REPO_URI/oj-server:${{ github.sha }}
 
-      - name: Push image to Docker Hub
-        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/backend-service:${{github.sha}}
+      - name: Deploy Image on EC2
+        run: |
+          # Decode the key and save it to a file
+          echo "${{ secrets.EC2_KEY }}" | base64 --decode > ec2-key.pem
+          chmod 600 ec2-key.pem
+
+          ssh -i ec2-key.pem ubuntu@$AWS_EC2_PUBLIC_IP << 'EOF'
+            docker stop oj-server || true
+            docker rm oj-server || true
+            docker image prune -af  # Use -af to remove all unused images
+            docker pull $REPO_URI/oj-server:${{ github.sha }}
+            docker run -d --name oj-server -p 5000:5000 $REPO_URI/oj-server:${{ github.sha }}
+          EOF
+
+          # Clean up the key file
+          rm ec2-key.pem
