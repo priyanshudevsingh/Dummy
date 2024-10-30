@@ -5,7 +5,7 @@ app.get("/", (req, res) => {
   res.send("Hello from the server");
 });
 
-const port = 3001;
+const port = 5000;
 app.listen(port, () => {
   console.log(`Priyanshu's Server is running on http://localhost:${port}`);
 });

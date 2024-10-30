@@ -3,5 +3,5 @@ WORKDIR /app/server
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 3000
+EXPOSE 5000
 CMD ["node", "index.js"]
